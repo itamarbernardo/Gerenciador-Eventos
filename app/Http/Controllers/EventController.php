@@ -99,4 +99,40 @@ class EventController extends Controller
 
         return redirect('/dashboard')->with('msg', 'Evento Excluído com Sucesso!');
     }
+
+    public function edit($id){
+
+        $event = Event::findOrFail($id);
+
+        return view('events.edit', ['event' => $event]);
+    }
+
+    public function update(Request $request){
+
+        $data = $request->all();
+
+        //Image Upload
+        if($request->hasFile('image') && $request->file('image')->isValid()) {
+
+            $requestImage = $request->image;
+
+            $extension = $requestImage->extension();
+
+            //Vamos criar um novo nome para a imagem, gerando um hash md5 com o nome da imagem e a data-hora do upload
+            $imageName = md5($requestImage->getClientOriginalName() . strtotime("now")) . "." . $extension;
+
+            //Colocamos essas imagens dos eventos na pasta public/img/events
+            $requestImage->move(public_path('img/events'), $imageName);
+
+            //salvamos o nome da imagem no Model event para salvar no banco
+            //para recuperar a imagem, basta acessar o /public/img/NOME_IMAGEM
+            $data['image'] = $imageName;
+
+        }
+        #dessa forma, já altera todos os atributos e só altera os que foram modificados
+        #dá pra usar a mesma lógica no store() 
+        Event::findOrFail($request->id)->update($data);
+
+        return redirect('/dashboard')->with('msg', 'Evento Editado com Sucesso!');
+    }
 }

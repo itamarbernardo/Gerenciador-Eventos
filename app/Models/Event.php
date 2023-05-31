@@ -15,6 +15,7 @@ class Event extends Model
 
     protected $dates = ['date'];
 
+    protected $guarded = []; #necessario para dizer ao laravel que tudo que for enviado pelo POST pode ser atualizado, sem restricoes
     public function user(){
         #belongsTo = pertence à
         #Evento pertence a um usuario
