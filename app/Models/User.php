@@ -64,4 +64,9 @@ class User extends Authenticatable
         #Usuario possui muitos eventos
         return $this->hasMany('App\Models\Event');
     }
+
+    public function eventsAsParticipant(){
+        #retornar os eventos que o usuário esta participando
+        return $this->belongsToMany('App\Models\Event');
+    }
 }

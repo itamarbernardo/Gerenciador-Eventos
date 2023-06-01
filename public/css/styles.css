@@ -42,6 +42,16 @@ header {
   padding: 10px;
 }
 
+.error {
+  background-color: #fdae9c;
+  color: #ff0000;
+  border: 1px solid #fdae9c;
+  width: 100%;
+  margin-bottom: 0;
+  text-align: center;
+  padding: 10px;
+}
+
 /* navbar */
 #navbar img {
   width: 40px;
