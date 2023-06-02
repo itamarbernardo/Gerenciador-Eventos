@@ -90,7 +90,9 @@ class EventController extends Controller
         
         $events = $user->events;
 
-        return view('events.dashboard', ['events' => $events]);
+        $eventsAsParticipant = $user->eventsAsParticipant;
+
+        return view('events.dashboard', ['events' => $events, 'eventsAsParticipant' => $eventsAsParticipant]);
     }
 
     public function destroy($id){
@@ -104,6 +106,12 @@ class EventController extends Controller
 
         $event = Event::findOrFail($id);
 
+        $user = auth()->user();
+
+        if($user->id != $event->user_id){
+            #Só deixa editar o evento se o usuario for o dono do evento!
+            return redirect('/dashboard')->with('error', 'Você não tem permissão para alterar este evento!');            
+        }
         return view('events.edit', ['event' => $event]);
     }
 
@@ -137,7 +145,7 @@ class EventController extends Controller
     }
 
     public function joinEvent($id){
-        
+        #Funcao para ligar um usuario a um evento: Participar do evento        
         $user = auth()->user();
         $event = Event::findOrFail($id);
         
