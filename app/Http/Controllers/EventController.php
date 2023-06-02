@@ -79,7 +79,21 @@ class EventController extends Controller
         #para Pegar o nome do user, poderiamos fazer assim também:
         #$user = User::findOrFail($event->user_id);
         #$name_user = $user->name;
-        return view('events.show', ['event' => $event, 'eventOwner' => $eventOwner]);
+        
+        $user = auth()->user();
+        $usuarioEstaParticipando = false;
+
+        if ($user){
+            #há um usuario logado
+            if ($user->eventsAsParticipant->contains($event->id)){
+                #Usuario Já está participando do evento
+                $usuarioEstaParticipando = true;
+            }
+            
+
+        }
+        
+        return view('events.show', ['event' => $event, 'eventOwner' => $eventOwner, 'usuarioEstaParticipando' => $usuarioEstaParticipando]);
     }
 
     public function dashboard(){
@@ -145,11 +159,12 @@ class EventController extends Controller
     }
 
     public function joinEvent($id){
+        #JoinEvent -> Participar de um evento
         #Funcao para ligar um usuario a um evento: Participar do evento        
         $user = auth()->user();
         $event = Event::findOrFail($id);
         
-        if (! $user->events->contains($event->id)){
+        if (! $user->eventsAsParticipant->contains($event->id)){
             $user->eventsAsParticipant()->attach($id); #vai preencher o ID do Evento e o ID do usuario na tabela event_user
 
             return redirect('/dashboard')->with('msg', 'Sua presença foi confirmada no evento ' . $event->title);
@@ -158,7 +173,25 @@ class EventController extends Controller
             return redirect('/dashboard')->with('error', 'Você já está participando do evento ' . $event->title);
         }
         
+        #$user->eventsAsParticipant()->attach($id); #vai preencher o ID do Evento e o ID do usuario na tabela event_user
 
+        return redirect('/dashboard')->with('msg', 'Sua presença foi confirmada no evento ' . $event->title);
+             
 
+    }
+
+    public function leaveEvent($id){
+        #LeaveEvent -> Deixar um evento -> O usuario nao vai mais participar do evento        
+        $user = auth()->user();
+        $event = Event::findOrFail($id);
+    
+        #Não precisamos verificar se o usuario está no evento, 
+        #pois o botao só aparece pra ele se ele já estiver no evento e 
+        #o formulario eh mandado pelo method POST, então não tem como o 
+        #usuario burlar isso
+        $user->eventsAsParticipant()->detach($id); #vai preencher o ID do Evento e o ID do usuario na tabela event_user
+
+        return redirect('/dashboard')->with('msg', 'Sua presença foi Cancelada no evento ' . $event->title);
+        
     }
 }
